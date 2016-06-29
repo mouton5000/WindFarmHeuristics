@@ -1,4 +1,5 @@
 import graphTheory.algorithms.steinerProblems.windFarmApproximationAlgorithms.GFLAC2WindFarmAlgorithm3;
+import graphTheory.algorithms.steinerProblems.windFarmApproximationAlgorithms.PaquetAlgorithm;
 import graphTheory.algorithms.steinerProblems.windFarmApproximationAlgorithms.WindFarmApproximationAlgorithm;
 import graphTheory.generators.steinLib.STPGenerator;
 import graphTheory.generators.windfarm.STPWindFarmGenerator;
@@ -248,7 +249,7 @@ public class Main {
     }
 
     public static void testWindFarmPaquet(){
-        String folder = "SteinLibWindFarm/paquets/Paquets1/";
+        String folder = "SteinLibWindFarm/paquets/Paquets3/";
 
         WindFarmInstance eol = null;
         try {
@@ -260,75 +261,26 @@ public class Main {
         if(eol == null)
             return;
 
-        HashMap<Arc,Integer> tree = new HashMap<Arc,Integer>();
+        PaquetAlgorithm paquetAlgorithm = new PaquetAlgorithm();
+        paquetAlgorithm.setInstance(eol);
 
-        FileManager fm = new FileManager();
-        for(int i = 0; i<10; i++){
-            String paquet = "Paquet0"+i+".txt";
-            fm.openRead(folder + paquet);
-
-            HashSet<Integer> nodes = new HashSet<Integer>();
-
-            String line;
-            while((line = fm.readLine()) != null) {
-                String[] ints = line.split("\\s+");
-                Integer i1 = Integer.valueOf(ints[0]);
-                Integer i2 = Integer.valueOf(ints[1]);
-                nodes.add(i1);
-                nodes.add(i2);
-            }
-            fm.closeRead();
-
-            nodes.add(eol.getRoot());
-
-            DirectedGraph dg = eol.getGraph();
-            DirectedGraph pg = dg.getInducedGraphFromNodes(nodes);
-
-            WindFarmInstance peol = new WindFarmInstance(pg);
-
-            for(Integer node : nodes){
-                if(eol.isRequired(node))
-                    peol.setRequired(node);
-            }
-            peol.setRoot(eol.getRoot());
-
-            for(Arc arc : pg.getEdges()){
-                peol.setCost(arc, eol.getDoubleCost(arc));
-            }
-
-            for(Integer capa : eol.getStaticCapacities()){
-                peol.setStaticCapacityCost(capa, eol.getStaticCapacityCost(capa));
-            }
-
-            for(Integer capa : eol.getDynamicCapacities()){
-                peol.setDynamicCapacityCost(capa, eol.getDynamicCapacityCost(capa));
-            }
-
-            for(Integer node : nodes)
-                peol.setMaximumOutputDegree(node, eol.getMaximumOutputDegree(node));
-            peol.setMaximumOutputDegree(eol.getRoot(), 1);
-
-
-            peol.setMaxNbSec(eol.getStaticCapacities().size());
-            peol.setDistanceMin(eol.getDistanceMin());
-            peol.setStaticStaticBranchingNodeCost(eol.getStaticStaticBranchingNodeCost());
-            peol.setDynamicStaticBranchingNodeCost(eol.getDynamicStaticBranchingNodeCost());
-            
-            GFLAC2WindFarmAlgorithm3 gf = new GFLAC2WindFarmAlgorithm3();
-            gf.setInstance(eol);
-            gf.compute();
-
-//            for(Map.Entry<Arc, Integer> entry : gf.getArborescence().entrySet()){
-//                tree.put(entry.getKey(), entry.getValue());
-//            }
-
+        for(int i = 0; i < 10; i++){
+            paquetAlgorithm.addPaquet(folder + "Paquet0"+i+".txt");
         }
 
-        tree = eol.unviolateMaxNbSecConstraint(tree);
-        Double c = 0D;
-        for(Map.Entry<Arc,Integer> entry : tree.entrySet()){
-            c += eol.getRealCableCost(entry.getKey(), entry.getValue());
+        paquetAlgorithm.compute();
+
+        FileManager fm2 = new FileManager();
+        fm2.openErase("Result/FormatComplexe/Paquets/Paquets3/instance_entier.sol");
+        int j = 1;
+        for(Map.Entry<Arc, Integer> entry : paquetAlgorithm.getArborescence().entrySet()){
+            Arc a = entry.getKey();
+            Integer capa = entry.getValue();
+            fm2.writeln(j + "/" + a.getInput()+"+"+a.getOutput()+"/->"+capa);
+            j++;
         }
-        System.out.println(c);
+        fm2.closeWrite();
+
+        System.out.println(paquetAlgorithm.getCost());
     }
 }
