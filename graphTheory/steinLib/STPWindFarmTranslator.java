@@ -103,12 +103,12 @@ public class STPWindFarmTranslator {
 		boolean isDirected;
 		int noe;
 		char letter;
-		WindFarmInstance g;
+		WindFarmInstance windFarmInstance;
 		if (m.matches()) {
 			isDirected = m.group(1).equals("arcs");
 			if (isDirected) {
 				DirectedGraph dg = new DirectedGraph();
-				g = new WindFarmInstance(dg);
+				windFarmInstance = new WindFarmInstance(dg);
 				letter = 'a';
 			} else {
 				throw new STPTranslationException(
@@ -147,7 +147,7 @@ public class STPWindFarmTranslator {
 		}
 
 
-		p = Pattern.compile(letter + " +(\\d+) +(\\d+) +(\\d+)(\\.(\\d+))?");
+		p = Pattern.compile(letter + "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)(\\.(\\d+))?");
 		Double cost;
 		Integer n1, n2;
 
@@ -165,21 +165,21 @@ public class STPWindFarmTranslator {
 					cost = Double.valueOf(m.group(3)+m.group(4));
 				}
 
-				if (!g.getGraph().contains(n1)) {
-					g.getGraph().addVertice(n1);
+				if (!windFarmInstance.getGraph().contains(n1)) {
+					windFarmInstance.getGraph().addVertice(n1);
 					nov--;
 				}
-				if (!g.getGraph().contains(n2)) {
-					g.getGraph().addVertice(n2);
+				if (!windFarmInstance.getGraph().contains(n2)) {
+					windFarmInstance.getGraph().addVertice(n2);
 					nov--;
 				}
 
 				Arc a;
 				if (isDirected)
-					a = g.getGraph().addDirectedEdge(n1, n2);
+					a = windFarmInstance.getGraph().addDirectedEdge(n1, n2);
 				else
-					a = g.getGraph().addUndirectedEdge(n1, n2);
-				g.setCost(a, cost);
+					a = windFarmInstance.getGraph().addUndirectedEdge(n1, n2);
+				windFarmInstance.setCost(a, cost);
 			} else {
 				throw new STPTranslationWindFarmException(
 						STPTranslationWindFarmExceptionEnum.EDGE_DESCRIPTION_BAD_FORMAT,
@@ -229,7 +229,7 @@ public class STPWindFarmTranslator {
 		p = Pattern.compile("terminals +(\\d+)");
 		m = p.matcher(s);
 		int not;
-		int size = g.getGraph().getNumberOfVertices();
+		int size = windFarmInstance.getGraph().getNumberOfVertices();
 
         // Get the number of terminals
 		if (m.matches()) {
@@ -272,13 +272,13 @@ public class STPWindFarmTranslator {
 								fileName, lineNumber, s);
 					} else {
 						rootSet = true;
-						((SteinerDirectedInstance) g).setRoot(Integer.valueOf(m
+						((SteinerDirectedInstance) windFarmInstance).setRoot(Integer.valueOf(m
 								.group(4)));
 					}
 				} else {
 					n1 = Integer.valueOf(m.group(2));
-					g.setRequired(n1, true);
-					g.setMaximumOutputDegree(n1, 1);
+					windFarmInstance.setRequired(n1, true);
+					windFarmInstance.setMaximumOutputDegree(n1, 1);
 					not--;
 				}
 			} else {
@@ -304,6 +304,67 @@ public class STPWindFarmTranslator {
 					STPTranslationExceptionEnum.INCOHERENT_NB_TERMS, fileName,
 					lineNumber, s);
 		}
+
+        // Jump to the next section
+        while (!s.contains("section")) {
+            s = f.readLine();
+            lineNumber++;
+            // If End of File is reached, there is no section parameter
+            if (s == null) {
+                throw new STPTranslationWindFarmException(
+                        STPTranslationWindFarmExceptionEnum.NO_SECTION_PARAMETERS, fileName,
+                        lineNumber, s);
+            }
+            s = s.toLowerCase();
+        }
+
+        if(s.contains("coordinates")){
+            // Check if the section is empty
+            s = f.readLine();
+            lineNumber++;
+            if (s == null) {
+                throw new STPTranslationWindFarmException(
+                        STPTranslationWindFarmExceptionEnum.NO_SECTION_COORDINATES_CONTENT,
+                        fileName, lineNumber, s);
+            }
+
+            s = s.toLowerCase();
+            s = s.trim();
+            p = Pattern.compile("dd\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)");
+            HashSet<Integer> visited = new HashSet<Integer>();
+            while (!s.equals("end")) {
+                m = p.matcher(s);
+                if (m.matches()) {
+                    // For each line, define the coordinates of a node
+                    Integer node = Integer.valueOf(m.group(1));
+                    Integer x = Integer.valueOf(m.group(2));
+                    Integer y = Integer.valueOf(m.group(3));
+
+                    if(visited.contains(node))
+                        throw new STPTranslationWindFarmException(
+                                STPTranslationWindFarmExceptionEnum.COORDINATES_DEFINED_TWICE,
+                                fileName, lineNumber, s);
+                    visited.add(node);
+                    windFarmInstance.getGraph().setNodeAbscissa(node, x);
+                    windFarmInstance.getGraph().setNodeOrdinate(node, y);
+                }
+                else{
+                    throw new STPTranslationWindFarmException(
+                            STPTranslationWindFarmExceptionEnum.COORDINATES_DESC_BAD_FORMAT,
+                            fileName, lineNumber, s);
+                }
+                s = f.readLine();
+                lineNumber++;
+                if (s == null) {
+                    throw new STPTranslationWindFarmException(
+                            STPTranslationWindFarmExceptionEnum.FILE_ENDED_BEFORE_EOF_SCAP,
+                            fileName, lineNumber, s);
+                }
+                s = s.toLowerCase();
+                s = s.trim();
+            }
+        }
+
 
 		// Jump to the section parameters
 		while (!s.contains("section parameters")) {
@@ -349,11 +410,11 @@ public class STPWindFarmTranslator {
                             fileName, lineNumber, s);
 				if(parameter.equals("degss") && m.group(3) == null){
 					Integer deg = Integer.valueOf(m.group(2));
-					g.setMaximumOutputDegree(g.getRoot(), deg);
+					windFarmInstance.setMaximumOutputDegree(windFarmInstance.getRoot(), deg);
 				}
 				else if(parameter.equals("nbsec") && m.group(3)==null){
 					Integer nbSec = Integer.valueOf(m.group(2));
-					g.setMaxNbSec(nbSec);
+					windFarmInstance.setMaxNbSec(nbSec);
 				}
 				else if(parameter.equals("dmin")){
 					Double dmin;
@@ -363,7 +424,7 @@ public class STPWindFarmTranslator {
 					else{
 						dmin = Double.valueOf(m.group(2)+m.group(3));
 					}
-					g.setDistanceMin(dmin);
+					windFarmInstance.setDistanceMin(dmin);
 				}
 				else if(parameter.equals("jonction stst")){
 					Double jstst;
@@ -373,7 +434,7 @@ public class STPWindFarmTranslator {
 					else{
 						jstst = Double.valueOf(m.group(2)+m.group(3));
 					}
-					g.setStaticStaticBranchingNodeCost(jstst);
+					windFarmInstance.setStaticStaticBranchingNodeCost(jstst);
 				}
 				else if(parameter.equals("jonction stdyn")){
 					Double jstdyn;
@@ -383,7 +444,7 @@ public class STPWindFarmTranslator {
 					else{
 						jstdyn = Double.valueOf(m.group(2)+m.group(3));
 					}
-					g.setDynamicStaticBranchingNodeCost(jstdyn);
+					windFarmInstance.setDynamicStaticBranchingNodeCost(jstdyn);
 				}
 				else {
 					throw new STPTranslationWindFarmException(
@@ -469,10 +530,10 @@ public class STPWindFarmTranslator {
 					capacost = Double.valueOf(m.group(3)+m.group(4));
 				}
 				if(m.group(1).equals("st")){
-					g.setStaticCapacityCost(capacity, capacost);
+					windFarmInstance.setStaticCapacityCost(capacity, capacost);
 				}
 				else{
-					g.setDynamicCapacityCost(capacity, capacost);
+					windFarmInstance.setDynamicCapacityCost(capacity, capacost);
 				}
 			} else {
 				throw new STPTranslationWindFarmException(
@@ -505,6 +566,6 @@ public class STPWindFarmTranslator {
 		}
 
 
-		return g;
+		return windFarmInstance;
 	}
 }

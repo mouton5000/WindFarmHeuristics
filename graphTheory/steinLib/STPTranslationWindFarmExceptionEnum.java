@@ -9,8 +9,13 @@ package graphTheory.steinLib;
  */
 public enum STPTranslationWindFarmExceptionEnum {
 
-    BAD_FORMAT_CODE, EDGE_DESCRIPTION_BAD_FORMAT, NO_SECTION_PARAMETERS, NO_SECTION_PARAMETERS_CONTENT,
-    PARAMETERS_DESC_BAD_FORMAT, FILE_ENDED_BEFORE_EOF_SPAR, PARAMETERS_KEYWORD_USED_TWICE, PARAMETERS_KEYWORD_MISSING_DEGSS, PARAMETERS_KEYWORD_MISSING_NBSEC, PARAMETERS_KEYWORD_MISSING_DMIN, PARAMETERS_KEYWORD_MISSING_JONCTIONSTST, PARAMETERS_KEYWORD_MISSING_JONCTIONSTDYN, NO_SECTION_CAPACITIES, NO_SECTION_CAPACITIES_CONTENT, CAPACITIES_DESC_BAD_FORMAT, FILE_ENDED_BEFORE_EOF_SCAP;
+    BAD_FORMAT_CODE, EDGE_DESCRIPTION_BAD_FORMAT,
+    NO_SECTION_COORDINATES_CONTENT, COORDINATES_DEFINED_TWICE, COORDINATES_DESC_BAD_FORMAT,
+    NO_SECTION_PARAMETERS, NO_SECTION_PARAMETERS_CONTENT,
+    PARAMETERS_DESC_BAD_FORMAT, FILE_ENDED_BEFORE_EOF_SPAR, PARAMETERS_KEYWORD_USED_TWICE,
+    PARAMETERS_KEYWORD_MISSING_DEGSS, PARAMETERS_KEYWORD_MISSING_NBSEC, PARAMETERS_KEYWORD_MISSING_DMIN,
+    PARAMETERS_KEYWORD_MISSING_JONCTIONSTST, PARAMETERS_KEYWORD_MISSING_JONCTIONSTDYN, NO_SECTION_CAPACITIES,
+    NO_SECTION_CAPACITIES_CONTENT, CAPACITIES_DESC_BAD_FORMAT, FILE_ENDED_BEFORE_EOF_SCAP;
 
     @Override
     public String toString() {
@@ -23,6 +28,14 @@ public enum STPTranslationWindFarmExceptionEnum {
                         + "Expected format : A xx xx xx or A xx xx xx.xx if the graphTheory.graph is directed, " +
                         "or E xx xx xx or E xx xx xx.xx if not\n"
                         + "where xx xx xx(.xx) are respectively the ids of the linked nodes and the cost of the edge/arc in the graphTheory.graph.";
+            case NO_SECTION_COORDINATES_CONTENT:
+                return "The Coordinates section exists and has an empty content.";
+            case COORDINATES_DEFINED_TWICE:
+                return "This node has two sets of coordinates in the file.";
+            case COORDINATES_DESC_BAD_FORMAT:
+                return "This line is not correctly written. \n"
+                    + "Expected format : DD xx xx xx \n" +
+                        "where xx xx xx are respectively the id of a node, its abscissa and its ordinate.";
             case NO_SECTION_PARAMETERS:
                 return "The file does not contain the Parameters section or does not contain the line " +
                         "\"SECTION Parameters\" introducing it.";
