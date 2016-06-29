@@ -1,6 +1,8 @@
 package graphTheory.algorithms.steinerProblems.windFarmApproximationAlgorithms;
 
 import graphTheory.graph.Arc;
+import graphTheory.graph.DirectedGraph;
+import graphTheory.graph.Graph;
 import graphTheory.utils.*;
 
 import java.util.*;
@@ -88,17 +90,17 @@ public class GFLAC2WindFarmAlgorithm3 extends WindFarmApproximationAlgorithm {
 	protected void computeWithoutTime() {
 
 		// Copy the required vertices
-		requiredVertices = new HashSet<Integer>(instance.getRequiredVertices());
+		requiredVertices = new HashSet<Integer>(this.getInstance().getRequiredVertices());
 		// Remove the root, if it is a terminal, otherwise, this algorithm could start
 		// a infinite loop
-		requiredVertices.remove(instance.getRoot());
+		requiredVertices.remove(this.getInstance().getRoot());
 
 
 		// This set will merge the trees returned by FLAC
 		currentSol = new HashSet<Arc>();
 
         // Copy the costs
-		this.costs = instance.getDoubleCosts();
+		this.costs = this.getInstance().getDoubleCosts();
 
         // Cost comparator
 		comp = getArcsComparator();
@@ -106,10 +108,10 @@ public class GFLAC2WindFarmAlgorithm3 extends WindFarmApproximationAlgorithm {
         // Init maps
 		sortedInputArcs = new HashMap<Integer, TreeSet<Arc>>();
 
-		Integer maxCapacity = Collections.max(instance.getStaticCapacities());
+		Integer maxCapacity = Collections.max(this.getInstance().getStaticCapacities());
 
 		leftCapacities = new HashMap<Arc, Integer>();
-        for(Arc a : instance.getGraph().getEdges())
+        for(Arc a : this.getInstance().getGraph().getEdges())
             leftCapacities.put(a, maxCapacity);
 
         leftOutputDegree = this.getInstance().getMaximumOutputDegree();
@@ -146,10 +148,22 @@ public class GFLAC2WindFarmAlgorithm3 extends WindFarmApproximationAlgorithm {
             arborescenceFlow.put(a, maxCapacity - leftCapacities.get(a));
         }
 
-        arborescence = instance.unviolateMaxNbSecConstraint(arborescenceFlow);
-        for(Map.Entry<Arc,Integer> entry : arborescence.entrySet()){
-            c += instance.getRealCableCost(entry.getKey(), entry.getValue());
+        arborescenceFlow = this.getInstance().unviolateTreeConstraint(arborescenceFlow);
+        arborescenceFlow = this.getInstance().unviolateMaxNbSecConstraint(arborescenceFlow);
+
+        DirectedGraph arbGraph = this.getInstance().getGraph().getInducedGraphFromArc(arborescenceFlow.keySet());
+        for(Integer node : arbGraph.getVertices()){
+            if(arbGraph.getOutputSize(node) >= 2) {
+                c += this.getInstance().getStaticStaticBranchingNodeCost();
+            }
         }
+
+        for(Map.Entry<Arc,Integer> entry : arborescenceFlow.entrySet()){
+            c += this.getInstance().getRealCableCost(entry.getKey(), entry.getValue());
+
+        }
+
+        arborescence = arborescenceFlow;
 		cost = c;
 
 	}

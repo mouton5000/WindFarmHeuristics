@@ -230,6 +230,117 @@ public class WindFarmInstance extends SteinerDirectedInstance implements
     }
 
     /**
+     * Remove every cycle of the graph.
+     * @param arborescenceFlow
+     * @return
+     */
+    public HashMap<Arc, Integer> unviolateTreeConstraint(HashMap<Arc, Integer> arborescenceFlow){
+        HashMap<Arc, Integer> noCycleFlow = new HashMap<Arc, Integer>(arborescenceFlow);
+        DirectedGraph arbGraph = this.getGraph().getInducedGraphFromArc(noCycleFlow.keySet());
+        outer : while(arbGraph.getNumberOfEdges() != arbGraph.getNumberOfVertices() - 1) {
+            System.out.println("Cycle " + arbGraph.getNumberOfVertices() + " " + arbGraph.getNumberOfEdges());
+            for(Integer node : arbGraph.getVertices()){
+                if(arbGraph.getInputSize(node) >= 2) {
+                    System.out.println(node+" "+arbGraph.getInputSize(node));
+
+                    Iterator<Arc> it = arbGraph.getInputArcsIterator(node);
+                    Arc a1 = it.next();
+                    Arc a2 = it.next();
+                    Integer v1, v2;
+
+                    LinkedList<Arc> p1 = new LinkedList<Arc>();
+                    LinkedList<Arc> p2 = new LinkedList<Arc>();
+
+                    Integer flow, flow1 = noCycleFlow.get(a1), flow2 = noCycleFlow.get(a2);
+                    System.out.println(flow1+" "+flow2);
+
+                    if(flow1 <= flow2){
+                        v1 = a1.getInput();
+                        v2 = a2.getInput();
+                        p1.add(a1);
+                        p2.add(a2);
+                        flow = flow1;
+                    }
+                    else{
+                        v2 = a1.getInput();
+                        v1 = a2.getInput();
+                        p1.add(a2);
+                        p2.add(a1);
+                        flow = flow2;
+                    }
+
+                    Integer f1 = v1;
+                    while(arbGraph.getOutputSize(f1) == 1){
+                        a1 = arbGraph.getInputArcsIterator(f1).next();
+                        p1.addFirst(a1);
+                        f1 = a1.getInput();
+                    }
+
+                    Integer f2 = v2;
+                    while(arbGraph.getOutputSize(f2) == 1){
+                        a2 = arbGraph.getInputArcsIterator(f2).next();
+                        p2.addFirst(a2);
+                        f2 = a2.getOutput();
+                    }
+
+                    HashSet<Integer> h1 = new HashSet<Integer>();
+                    h1.add(f1);
+                    h1.add(node);
+                    HashSet<Integer> h2 = new HashSet<Integer>();
+                    h2.add(f2);
+                    h1.add(node);
+
+                    while(!h1.contains(f2) && !h2.contains(f1)){
+                        if(arbGraph.getInputSize(f1) > 0){
+                            a1 = arbGraph.getInputArcsIterator(f1).next();
+                            p1.addFirst(a1);
+                            f1 = a1.getInput();
+                            while(arbGraph.getOutputSize(f1) == 1){
+                                a1 = arbGraph.getInputArcsIterator(f1).next();
+                                p1.addFirst(a1);
+                                f1 = a1.getInput();
+                            }
+                            h1.add(f1);
+                        }
+                        if(arbGraph.getInputSize(f2) > 0){
+                            a2 = arbGraph.getInputArcsIterator(f2).next();
+                            p2.addFirst(a2);
+                            f2 = a2.getOutput();
+                            while(arbGraph.getOutputSize(f2) == 1){
+                                a2 = arbGraph.getInputArcsIterator(f2).next();
+                                p2.addFirst(a2);
+                                f2 = a2.getOutput();
+                            }
+                            h2.add(f2);
+                        }
+                    }
+
+                    Integer f = (h1.contains(f2))?f2:f1;
+                    System.out.println(f+" "+h1+" "+ h2+" "+p1 +" "+p2);
+                    while(!p1.isEmpty() && !p1.getFirst().getInput().equals(f))
+                        p1.removeFirst();
+                    while(!p2.isEmpty() && !p2.getFirst().getInput().equals(f))
+                        p2.removeFirst();
+                    System.out.println(p1+" "+p2);
+
+                    for(Arc a : p1){
+                        Integer flowa = noCycleFlow.get(a);
+                        if(flowa.equals(flow)){
+                            noCycleFlow.remove(a);
+                            arbGraph.removeEdge(a);
+                        }
+                        else
+                            noCycleFlow.put(a, flowa - flow);
+                    }
+                    continue outer;
+                }
+            }
+        }
+        return noCycleFlow;
+    }
+
+
+    /**
      * Given an arborescence of arc, each one with the minimum capacity a cable following this arc should be
      * associated with, this method returns a new map associating each arc with a new capacity such that
      * - no more than this.maxNbSec distinct capacities is chosen
