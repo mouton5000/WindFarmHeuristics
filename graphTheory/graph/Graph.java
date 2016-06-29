@@ -62,7 +62,7 @@ public class Graph implements Parametable {
 
 		// Graph drawer fields
 		this.nodeAbscissa = new HashMap<Integer, Integer>();
-		this.nodeOrdinates = new HashMap<Integer, Integer>();
+		this.nodeOrdinate = new HashMap<Integer, Integer>();
 		this.drawnNodes = new HashMap<Integer, Boolean>();
 		this.nodeColors = new HashMap<Integer, Color>();
 		this.nodeFill = new HashMap<Integer, Boolean>();
@@ -1942,33 +1942,33 @@ public class Graph implements Parametable {
 	// Node informations
 
 	private HashMap<Integer, Integer> nodeAbscissa;
-	private HashMap<Integer, Integer> nodeOrdinates;
+	private HashMap<Integer, Integer> nodeOrdinate;
 
-	public int getNodeAbscisse(Integer n) {
+	public int getNodeAbscissa(Integer n) {
 		Integer x = nodeAbscissa.get(n);
 		if (x == null)
 			x = 0;
 		return x;
 	}
 
-	public void setNodeAbscisse(Integer n, int x) {
+	public void setNodeAbscissa(Integer n, int x) {
 		this.nodeAbscissa.put(n, x);
 	}
 
-	public int getNodeOrdonnee(Integer n) {
-		Integer y = nodeOrdinates.get(n);
+	public int getNodeOrdoninate(Integer n) {
+		Integer y = nodeOrdinate.get(n);
 		if (y == null)
 			y = 0;
 		return y;
 	}
 
-	public void setNodeOrdonnee(Integer n, int y) {
-		this.nodeOrdinates.put(n, y);
+	public void setNodeOrdinate(Integer n, int y) {
+		this.nodeOrdinate.put(n, y);
 	}
 
 	public void setNodeCoordinates(Integer n, int x, int y) {
-		setNodeAbscisse(n, x);
-		setNodeOrdonnee(n, y);
+		setNodeAbscissa(n, x);
+		setNodeOrdinate(n, y);
 	}
 
 	private HashMap<Integer, Boolean> drawnNodes;
@@ -2094,8 +2094,8 @@ public class Graph implements Parametable {
 	public void copyParams(Graph g, Integer n, Integer cp) {
 		this.setColor(cp, g.getColor(n));
 		this.setTextColor(cp, g.getTextColor(n));
-		this.setNodeAbscisse(cp, g.getNodeAbscisse(n));
-		this.setNodeOrdonnee(cp, g.getNodeOrdonnee(n));
+		this.setNodeAbscissa(cp, g.getNodeAbscissa(n));
+		this.setNodeOrdinate(cp, g.getNodeOrdoninate(n));
 		this.setFill(cp, g.isFill(n));
 
 		if (g.isCircleSymbol(n))

@@ -53,8 +53,8 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 	protected void initVerticesCoordinates(List<Integer> nodes) {
 
 		for (Integer v : nodes) {
-			graph.setNodeAbscisse(v, Math2.randomInt(getWidth()));
-			graph.setNodeOrdonnee(v, Math2.randomInt(getHeight()));
+			graph.setNodeAbscissa(v, Math2.randomInt(getWidth()));
+			graph.setNodeOrdinate(v, Math2.randomInt(getHeight()));
 		}
 	}
 
@@ -81,22 +81,22 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 				for (Integer u : nodesToDraw) {
 					if (u != v) {
 						delta = new Couple<Double, Double>(
-								(double) (graph.getNodeAbscisse(v) - graph
-										.getNodeAbscisse(u)),
-								(double) (graph.getNodeOrdonnee(v) - graph
-										.getNodeOrdonnee(u)));
+								(double) (graph.getNodeAbscissa(v) - graph
+										.getNodeAbscissa(u)),
+								(double) (graph.getNodeOrdoninate(v) - graph
+										.getNodeOrdoninate(u)));
 
 						// If nodes are at the same place, repulsion is infinite. The nodes are then moved a little.
 						if (delta.first == 0.0 && delta.second == 0.0) {
-							graph.setNodeAbscisse(
+							graph.setNodeAbscissa(
 									v,
-									graph.getNodeAbscisse(v)
-											+ ((graph.getNodeAbscisse(v) > getWidth() / 2) ? -1
+									graph.getNodeAbscissa(v)
+											+ ((graph.getNodeAbscissa(v) > getWidth() / 2) ? -1
 													: 1) * 50);
-							delta.first = (double) (graph.getNodeAbscisse(v) - graph
-									.getNodeAbscisse(u));
-							delta.second = (double) (graph.getNodeOrdonnee(v) - graph
-									.getNodeOrdonnee(u));
+							delta.first = (double) (graph.getNodeAbscissa(v) - graph
+									.getNodeAbscissa(u));
+							delta.second = (double) (graph.getNodeOrdoninate(v) - graph
+									.getNodeOrdoninate(u));
 						}
 						// We add the repulsion to the displacement vector.
 						else {
@@ -118,10 +118,10 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 				v = e.getInput();
 				u = e.getOutput();
 				delta = new Couple<Double, Double>(
-						(double) (graph.getNodeAbscisse(v) - graph
-								.getNodeAbscisse(u)),
-						(double) (graph.getNodeOrdonnee(v) - graph
-								.getNodeOrdonnee(u)));
+						(double) (graph.getNodeAbscissa(v) - graph
+								.getNodeAbscissa(u)),
+						(double) (graph.getNodeOrdoninate(v) - graph
+								.getNodeOrdoninate(u)));
 				normalize(delta);
 				att = attraction(v, u);
 				c = disp.get(v);
@@ -143,27 +143,27 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 				c = disp.get(v1);
 				norm = norm(c);
 				normalize(c);
-				graph.setNodeAbscisse(
+				graph.setNodeAbscissa(
 						v1,
-						graph.getNodeAbscisse(v1)
+						graph.getNodeAbscissa(v1)
 								+ (int) (c.first * Math.min(norm, iterations
 										/ (double) (i + 1))));
-				if (graph.getNodeAbscisse(v1) > this.getWidth() - 50)
-					graph.setNodeAbscisse(v1,
+				if (graph.getNodeAbscissa(v1) > this.getWidth() - 50)
+					graph.setNodeAbscissa(v1,
 							this.getWidth() - 50 + Math2.randomInt(-25, 25));
-				else if (graph.getNodeAbscisse(v1) < 50)
-					graph.setNodeAbscisse(v1, 50 + Math2.randomInt(-25, 25));
+				else if (graph.getNodeAbscissa(v1) < 50)
+					graph.setNodeAbscissa(v1, 50 + Math2.randomInt(-25, 25));
 
-				graph.setNodeOrdonnee(
+				graph.setNodeOrdinate(
 						v1,
-						graph.getNodeOrdonnee(v1)
+						graph.getNodeOrdoninate(v1)
 								+ (int) (c.second * Math.min(norm, iterations
 										/ (double) (i + 1))));
-				if (graph.getNodeOrdonnee(v1) > this.getHeight() - 50)
-					graph.setNodeOrdonnee(v1,
+				if (graph.getNodeOrdoninate(v1) > this.getHeight() - 50)
+					graph.setNodeOrdinate(v1,
 							this.getHeight() - 50 + Math2.randomInt(-25, 25));
-				else if (graph.getNodeOrdonnee(v1) < 50)
-					graph.setNodeOrdonnee(v1, 50 + Math2.randomInt(-25, 25));
+				else if (graph.getNodeOrdoninate(v1) < 50)
+					graph.setNodeOrdinate(v1, 50 + Math2.randomInt(-25, 25));
 
 			}
 		}
@@ -199,9 +199,9 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 	 */
 	private double distance(Integer n1, Integer n2) {
 		return Math.sqrt(Math.pow(
-				graph.getNodeAbscisse(n1) - graph.getNodeAbscisse(n2), 2)
+				graph.getNodeAbscissa(n1) - graph.getNodeAbscissa(n2), 2)
 				+ Math.pow(
-						graph.getNodeOrdonnee(n1) - graph.getNodeOrdonnee(n2),
+						graph.getNodeOrdoninate(n1) - graph.getNodeOrdoninate(n2),
 						2));
 	}
 

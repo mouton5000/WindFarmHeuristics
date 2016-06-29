@@ -14,7 +14,6 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Watel Dimitri
  *
  */
-public class GraphDrawer extends JFrame implements MouseListener,
+public abstract class GraphDrawer extends JFrame implements MouseListener,
 		MouseMotionListener {
 
 	/**
@@ -123,25 +122,7 @@ public class GraphDrawer extends JFrame implements MouseListener,
 	 * Set the coordinates of every node with a basic method : every nodes are
 	 * uniformly placed on a circle.
 	 */
-	protected void setVerticesCoordinates() {
-		ArrayList<Integer> nodes = graph.getVertices();
-		ArrayList<Integer> h = nodes.stream().filter(node -> graph.isDrawn(node)).collect(Collectors.toCollection(ArrayList::new));
-
-
-		int s = h.size();
-		int i = 0;
-		for (Integer n : h) {
-			int x1 = (int) (300D + 200D * Math
-					.cos(((double) (2 * i) * 3.1415926535897931D) / (double) s));
-			int y1 = (int) (300D + 200D * Math
-					.sin(((double) (2 * i) * 3.1415926535897931D) / (double) s));
-
-			graph.setNodeAbscisse(n, x1);
-			graph.setNodeOrdonnee(n, y1);
-
-			i++;
-		}
-	}
+	protected abstract void setVerticesCoordinates();
 
 	/**
 	 * Place every nodes on the frame, knowing its coordinates.
@@ -202,12 +183,12 @@ public class GraphDrawer extends JFrame implements MouseListener,
 				radius = 25;
 
 			if (graph.isFill(n))
-				g.fillOval(graph.getNodeAbscisse(n) - radius,
-						graph.getNodeOrdonnee(n) - radius, 2 * radius,
+				g.fillOval(graph.getNodeAbscissa(n) - radius,
+						graph.getNodeOrdoninate(n) - radius, 2 * radius,
 						2 * radius);
 			else
-				g.drawOval(graph.getNodeAbscisse(n) - radius,
-						graph.getNodeOrdonnee(n) - radius, 2 * radius,
+				g.drawOval(graph.getNodeAbscissa(n) - radius,
+						graph.getNodeOrdoninate(n) - radius, 2 * radius,
 						2 * radius);
 		}
 		// if the node is drawed as a square
@@ -216,15 +197,15 @@ public class GraphDrawer extends JFrame implements MouseListener,
 			if (sideLength == null)
 				sideLength = 50;
 			//Set the four x and y coordinates of the square
-			int[] xPoints = { graph.getNodeAbscisse(n) - sideLength / 2,
-					graph.getNodeAbscisse(n) - sideLength / 2,
-					graph.getNodeAbscisse(n) + sideLength / 2,
-					graph.getNodeAbscisse(n) + sideLength / 2 },
+			int[] xPoints = { graph.getNodeAbscissa(n) - sideLength / 2,
+					graph.getNodeAbscissa(n) - sideLength / 2,
+					graph.getNodeAbscissa(n) + sideLength / 2,
+					graph.getNodeAbscissa(n) + sideLength / 2 },
 
-					yPoints = { graph.getNodeOrdonnee(n) - sideLength / 2,
-							graph.getNodeOrdonnee(n) + sideLength / 2,
-							graph.getNodeOrdonnee(n) + sideLength / 2,
-							graph.getNodeOrdonnee(n) - sideLength / 2 };
+					yPoints = { graph.getNodeOrdoninate(n) - sideLength / 2,
+							graph.getNodeOrdoninate(n) + sideLength / 2,
+							graph.getNodeOrdoninate(n) + sideLength / 2,
+							graph.getNodeOrdoninate(n) - sideLength / 2 };
 			if (graph.isFill(n))
 				g.fillPolygon(xPoints, yPoints, 4);
 			else
@@ -237,8 +218,8 @@ public class GraphDrawer extends JFrame implements MouseListener,
 
 		// draw the string representation of n at the node coordinates 
 		g.setColor(graph.getTextColor(n));
-		g.drawString(String.valueOf(n), graph.getNodeAbscisse(n),
-				graph.getNodeOrdonnee(n));
+		g.drawString(String.valueOf(n), graph.getNodeAbscissa(n),
+				graph.getNodeOrdoninate(n));
 		g.setColor(Color.black);
 	}
 
@@ -253,10 +234,10 @@ public class GraphDrawer extends JFrame implements MouseListener,
 		g.setColor(graph.getColor(arc));
 
 		int x1, x2, y1, y2;
-		x1 = graph.getNodeAbscisse(arc.getInput());
-		y1 = graph.getNodeOrdonnee(arc.getInput());
-		x2 = graph.getNodeAbscisse(arc.getOutput());
-		y2 = graph.getNodeOrdonnee(arc.getOutput());
+		x1 = graph.getNodeAbscissa(arc.getInput());
+		y1 = graph.getNodeOrdoninate(arc.getInput());
+		x2 = graph.getNodeAbscissa(arc.getOutput());
+		y2 = graph.getNodeOrdoninate(arc.getOutput());
 
 		// a is the slope of the strait line between the endings
 		double a = ((double) y2 - (double) y1) / ((double) x2 - (double) x1);
@@ -434,12 +415,12 @@ public class GraphDrawer extends JFrame implements MouseListener,
 			r = graph.getRadius(n);
 
 			if (b) {
-				if (Math2.dist(graph.getNodeAbscisse(n),
-						graph.getNodeOrdonnee(n), x, y, 2.0) < r)
+				if (Math2.dist(graph.getNodeAbscissa(n),
+						graph.getNodeOrdoninate(n), x, y, 2.0) < r)
 					m = n;
 			} else {
-				if (Math2.dist(graph.getNodeAbscisse(n),
-						graph.getNodeOrdonnee(n), x, y,
+				if (Math2.dist(graph.getNodeAbscissa(n),
+						graph.getNodeOrdoninate(n), x, y,
 						Double.POSITIVE_INFINITY) < r)
 					m = n;
 			}
