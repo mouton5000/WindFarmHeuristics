@@ -4,6 +4,7 @@ import graphTheory.graph.Arc;
 import graphTheory.graph.DirectedGraph;
 import graphTheory.instances.steiner.classic.SteinerDirectedInstance;
 import graphTheory.utils.Collections2;
+import graphTheory.utils.Math2;
 import graphTheory.utils.WeightedQuickUnionPathCompressionUF;
 
 import java.util.*;
@@ -229,6 +230,85 @@ public class WindFarmInstance extends SteinerDirectedInstance implements
         this.dynamicStaticBranchingNodeCost = dynamicStaticBranchingNodeCost;
     }
 
+
+    public WindFarmInstance simplifyWithAngles(double threshold){
+        Iterator<Arc> arcIterator = this.getGraph().getEdgesIterator();
+
+        int x0 = this.getGraph().getNodeAbscissa(this.getRoot());
+        int y0 = this.getGraph().getNodeOrdinate(this.getRoot());
+
+        HashSet<Arc> toKeep = new HashSet<Arc>();
+
+        while(arcIterator.hasNext()){
+            Arc a = arcIterator.next();
+
+            int x1 = this.getGraph().getNodeAbscissa(a.getInput());
+            int y1 = this.getGraph().getNodeOrdinate(a.getInput());
+            int x2 = this.getGraph().getNodeAbscissa(a.getOutput());
+            int y2 = this.getGraph().getNodeOrdinate(a.getOutput());
+
+
+            int v1x = (x1 + x2)/2 - x0;
+            int v1y = (y1 + y2)/2 - y0;
+
+            int v2x = x2 - x1;
+            int v2y = y2 - y1;
+
+            int sp = Math2.scalarProduct(v1x, v1y, v2x, v2y);
+            double norm1 = Math2.dist(0,0,v1x, v1y, 2D);
+            double norm2 = Math2.dist(0,0,v2x, v2y, 2D);
+
+            double cosAngle = sp/(norm1 * norm2);
+            double angle = Math.acos(cosAngle);
+
+            if(angle < Math.PI / 2 + threshold ){
+                toKeep.add(a);
+            }
+        }
+
+        DirectedGraph dg = new DirectedGraph();
+        for(Arc a : toKeep){
+            dg.addVertice(a.getInput());
+            dg.addVertice(a.getOutput());
+            dg.addDirectedEdge(a.getInput(), a.getOutput());
+        }
+
+        WindFarmInstance eol = new WindFarmInstance(dg);
+        for(Arc a : toKeep)
+            eol.setCost(a, this.getDoubleCost(a));
+
+        eol.setRoot(this.getRoot());
+        for(Integer node : dg.getVertices())
+            if(this.isRequired(node))
+                eol.setRequired(node);
+
+        for(Integer capa : this.getStaticCapacities()){
+            eol.setStaticCapacityCost(capa, this.getStaticCapacityCost(capa));
+        }
+
+        for(Integer capa : this.getDynamicCapacities()){
+            eol.setDynamicCapacityCost(capa, this.getDynamicCapacityCost(capa));
+        }
+
+        for(Integer node : dg.getVertices())
+            eol.setMaximumOutputDegree(node, this.getMaximumOutputDegree(node));
+        eol.setMaximumOutputDegree(this.getRoot(), 1);
+
+
+        for(Integer node : dg.getVertices()) {
+            eol.getGraph().setNodeAbscissa(node, this.getGraph().getNodeAbscissa(node));
+            eol.getGraph().setNodeOrdinate(node, this.getGraph().getNodeOrdinate(node));
+        }
+
+        eol.setMaxNbSec(this.getStaticCapacities().size());
+        eol.setDistanceMin(this.getDistanceMin());
+        eol.setStaticStaticBranchingNodeCost(this.getStaticStaticBranchingNodeCost());
+        eol.setDynamicStaticBranchingNodeCost(this.getDynamicStaticBranchingNodeCost());
+
+        return eol;
+    }
+
+
     /**
      * Remove every cycle of the graph.
      * @param arborescenceFlow
@@ -238,10 +318,8 @@ public class WindFarmInstance extends SteinerDirectedInstance implements
         HashMap<Arc, Integer> noCycleFlow = new HashMap<Arc, Integer>(arborescenceFlow);
         DirectedGraph arbGraph = this.getGraph().getInducedGraphFromArc(noCycleFlow.keySet());
         outer : while(arbGraph.getNumberOfEdges() != arbGraph.getNumberOfVertices() - 1) {
-            System.out.println("Cycle " + arbGraph.getNumberOfVertices() + " " + arbGraph.getNumberOfEdges());
             for(Integer node : arbGraph.getVertices()){
                 if(arbGraph.getInputSize(node) >= 2) {
-                    System.out.println(node+" "+arbGraph.getInputSize(node));
 
                     Iterator<Arc> it = arbGraph.getInputArcsIterator(node);
                     Arc a1 = it.next();
@@ -252,7 +330,6 @@ public class WindFarmInstance extends SteinerDirectedInstance implements
                     LinkedList<Arc> p2 = new LinkedList<Arc>();
 
                     Integer flow, flow1 = noCycleFlow.get(a1), flow2 = noCycleFlow.get(a2);
-                    System.out.println(flow1+" "+flow2);
 
                     if(flow1 <= flow2){
                         v1 = a1.getInput();
@@ -316,12 +393,10 @@ public class WindFarmInstance extends SteinerDirectedInstance implements
                     }
 
                     Integer f = (h1.contains(f2))?f2:f1;
-                    System.out.println(f+" "+h1+" "+ h2+" "+p1 +" "+p2);
                     while(!p1.isEmpty() && !p1.getFirst().getInput().equals(f))
                         p1.removeFirst();
                     while(!p2.isEmpty() && !p2.getFirst().getInput().equals(f))
                         p2.removeFirst();
-                    System.out.println(p1+" "+p2);
 
                     for(Arc a : p1){
                         Integer flowa = noCycleFlow.get(a);
