@@ -1955,7 +1955,7 @@ public class Graph implements Parametable {
 		this.nodeAbscissa.put(n, x);
 	}
 
-	public int getNodeOrdoninate(Integer n) {
+	public int getNodeOrdinate(Integer n) {
 		Integer y = nodeOrdinate.get(n);
 		if (y == null)
 			y = 0;
@@ -2095,7 +2095,7 @@ public class Graph implements Parametable {
 		this.setColor(cp, g.getColor(n));
 		this.setTextColor(cp, g.getTextColor(n));
 		this.setNodeAbscissa(cp, g.getNodeAbscissa(n));
-		this.setNodeOrdinate(cp, g.getNodeOrdoninate(n));
+		this.setNodeOrdinate(cp, g.getNodeOrdinate(n));
 		this.setFill(cp, g.isFill(n));
 
 		if (g.isCircleSymbol(n))

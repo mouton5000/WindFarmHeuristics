@@ -184,11 +184,11 @@ public abstract class GraphDrawer extends JFrame implements MouseListener,
 
 			if (graph.isFill(n))
 				g.fillOval(graph.getNodeAbscissa(n) - radius,
-						graph.getNodeOrdoninate(n) - radius, 2 * radius,
+						graph.getNodeOrdinate(n) - radius, 2 * radius,
 						2 * radius);
 			else
 				g.drawOval(graph.getNodeAbscissa(n) - radius,
-						graph.getNodeOrdoninate(n) - radius, 2 * radius,
+						graph.getNodeOrdinate(n) - radius, 2 * radius,
 						2 * radius);
 		}
 		// if the node is drawed as a square
@@ -202,10 +202,10 @@ public abstract class GraphDrawer extends JFrame implements MouseListener,
 					graph.getNodeAbscissa(n) + sideLength / 2,
 					graph.getNodeAbscissa(n) + sideLength / 2 },
 
-					yPoints = { graph.getNodeOrdoninate(n) - sideLength / 2,
-							graph.getNodeOrdoninate(n) + sideLength / 2,
-							graph.getNodeOrdoninate(n) + sideLength / 2,
-							graph.getNodeOrdoninate(n) - sideLength / 2 };
+					yPoints = { graph.getNodeOrdinate(n) - sideLength / 2,
+							graph.getNodeOrdinate(n) + sideLength / 2,
+							graph.getNodeOrdinate(n) + sideLength / 2,
+							graph.getNodeOrdinate(n) - sideLength / 2 };
 			if (graph.isFill(n))
 				g.fillPolygon(xPoints, yPoints, 4);
 			else
@@ -219,7 +219,7 @@ public abstract class GraphDrawer extends JFrame implements MouseListener,
 		// draw the string representation of n at the node coordinates 
 		g.setColor(graph.getTextColor(n));
 		g.drawString(String.valueOf(n), graph.getNodeAbscissa(n),
-				graph.getNodeOrdoninate(n));
+				graph.getNodeOrdinate(n));
 		g.setColor(Color.black);
 	}
 
@@ -235,9 +235,9 @@ public abstract class GraphDrawer extends JFrame implements MouseListener,
 
 		int x1, x2, y1, y2;
 		x1 = graph.getNodeAbscissa(arc.getInput());
-		y1 = graph.getNodeOrdoninate(arc.getInput());
+		y1 = graph.getNodeOrdinate(arc.getInput());
 		x2 = graph.getNodeAbscissa(arc.getOutput());
-		y2 = graph.getNodeOrdoninate(arc.getOutput());
+		y2 = graph.getNodeOrdinate(arc.getOutput());
 
 		// a is the slope of the strait line between the endings
 		double a = ((double) y2 - (double) y1) / ((double) x2 - (double) x1);
@@ -416,11 +416,11 @@ public abstract class GraphDrawer extends JFrame implements MouseListener,
 
 			if (b) {
 				if (Math2.dist(graph.getNodeAbscissa(n),
-						graph.getNodeOrdoninate(n), x, y, 2.0) < r)
+						graph.getNodeOrdinate(n), x, y, 2.0) < r)
 					m = n;
 			} else {
 				if (Math2.dist(graph.getNodeAbscissa(n),
-						graph.getNodeOrdoninate(n), x, y,
+						graph.getNodeOrdinate(n), x, y,
 						Double.POSITIVE_INFINITY) < r)
 					m = n;
 			}

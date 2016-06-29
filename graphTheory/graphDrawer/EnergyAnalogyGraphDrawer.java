@@ -83,8 +83,8 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 						delta = new Couple<Double, Double>(
 								(double) (graph.getNodeAbscissa(v) - graph
 										.getNodeAbscissa(u)),
-								(double) (graph.getNodeOrdoninate(v) - graph
-										.getNodeOrdoninate(u)));
+								(double) (graph.getNodeOrdinate(v) - graph
+										.getNodeOrdinate(u)));
 
 						// If nodes are at the same place, repulsion is infinite. The nodes are then moved a little.
 						if (delta.first == 0.0 && delta.second == 0.0) {
@@ -95,8 +95,8 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 													: 1) * 50);
 							delta.first = (double) (graph.getNodeAbscissa(v) - graph
 									.getNodeAbscissa(u));
-							delta.second = (double) (graph.getNodeOrdoninate(v) - graph
-									.getNodeOrdoninate(u));
+							delta.second = (double) (graph.getNodeOrdinate(v) - graph
+									.getNodeOrdinate(u));
 						}
 						// We add the repulsion to the displacement vector.
 						else {
@@ -120,8 +120,8 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 				delta = new Couple<Double, Double>(
 						(double) (graph.getNodeAbscissa(v) - graph
 								.getNodeAbscissa(u)),
-						(double) (graph.getNodeOrdoninate(v) - graph
-								.getNodeOrdoninate(u)));
+						(double) (graph.getNodeOrdinate(v) - graph
+								.getNodeOrdinate(u)));
 				normalize(delta);
 				att = attraction(v, u);
 				c = disp.get(v);
@@ -156,13 +156,13 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 
 				graph.setNodeOrdinate(
 						v1,
-						graph.getNodeOrdoninate(v1)
+						graph.getNodeOrdinate(v1)
 								+ (int) (c.second * Math.min(norm, iterations
 										/ (double) (i + 1))));
-				if (graph.getNodeOrdoninate(v1) > this.getHeight() - 50)
+				if (graph.getNodeOrdinate(v1) > this.getHeight() - 50)
 					graph.setNodeOrdinate(v1,
 							this.getHeight() - 50 + Math2.randomInt(-25, 25));
-				else if (graph.getNodeOrdoninate(v1) < 50)
+				else if (graph.getNodeOrdinate(v1) < 50)
 					graph.setNodeOrdinate(v1, 50 + Math2.randomInt(-25, 25));
 
 			}
@@ -201,7 +201,7 @@ public class EnergyAnalogyGraphDrawer extends GraphDrawer {
 		return Math.sqrt(Math.pow(
 				graph.getNodeAbscissa(n1) - graph.getNodeAbscissa(n2), 2)
 				+ Math.pow(
-						graph.getNodeOrdoninate(n1) - graph.getNodeOrdoninate(n2),
+						graph.getNodeOrdinate(n1) - graph.getNodeOrdinate(n2),
 						2));
 	}
 

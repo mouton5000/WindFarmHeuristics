@@ -27,7 +27,7 @@ public class TikzTranslator {
 					+ (g.isSquareSymbol(n) ? "rectangle" : "circle") + ",fill="
 					+ (g.isFill(n) ? "black" : "white") + "] (V" + n + ") at ("
 					+ (double) g.getNodeAbscissa(n) / 100 + ","
-					+ -(double) g.getNodeOrdoninate(n) / 100 + ") {};\n";
+					+ -(double) g.getNodeOrdinate(n) / 100 + ") {};\n";
 		}
 
 		s += "\n";
